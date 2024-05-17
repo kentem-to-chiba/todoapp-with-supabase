@@ -40,6 +40,11 @@ function App() {
     setInput("");
     todoCacheRefetch();
   };
+  const deleteTodo = async (id: number) => {
+    const { error } = await supabase.from("todo").delete().eq("id", id);
+    if (error) throw new Error(error.message);
+    todoCacheRefetch();
+  };
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -96,7 +101,13 @@ function App() {
               <ListItem
                 key={x.id}
                 secondaryAction={
-                  <IconButton edge="end" aria-label="delete">
+                  <IconButton
+                    edge="end"
+                    aria-label="delete"
+                    onClick={() => {
+                      deleteTodo(x.id);
+                    }}
+                  >
                     <DeleteIcon />
                   </IconButton>
                 }
