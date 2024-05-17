@@ -26,6 +26,9 @@ jobs:
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
+    env:
+      VITE_SUPABASE_PROJECT_URL: ${{ vars.VITE_SUPABASE_PROJECT_URL }}
+      VITE_SUPABASE_API_KEY: ${{ vars.VITE_SUPABASE_API_KEY }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
