@@ -1,13 +1,14 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { type Session, createClient } from "@supabase/supabase-js";
 import { Auth } from "@supabase/auth-ui-react";
 import { ThemeSupa } from "@supabase/auth-ui-shared";
 import List from "@mui/material/List";
 import ListItem from "@mui/material/ListItem";
-import { Button, IconButton, ListItemText, Stack, TextField, Tooltip, Typography } from "@mui/material";
+import { Button, CircularProgress, IconButton, ListItemText, Stack, TextField, Typography } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 import SendIcon from "@mui/icons-material/Send";
-import type { Database } from "../types/supabase";
+import type { Database, Tables } from "../types/supabase";
+import { useQuery } from "@tanstack/react-query";
 
 const supabase = createClient<Database>(
   import.meta.env.VITE_SUPABASE_PROJECT_URL,
@@ -17,6 +18,28 @@ const supabase = createClient<Database>(
 function App() {
   const [session, setSession] = useState<Session | null>(null);
   const [input, setInput] = useState("");
+
+  const readTodo = async (): Promise<Pick<Tables<"todo">, "id" | "title">[]> => {
+    const { data, error } = await supabase.from("todo").select("id,title");
+    if (error) throw new Error(error.message);
+    return data;
+  };
+
+  const {
+    data: todoCache,
+    status: todoCacheStatus,
+    refetch: todoCacheRefetch,
+  } = useQuery({
+    queryKey: ["todo", session?.user.id],
+    queryFn: readTodo,
+  });
+
+  const createTodo = async () => {
+    const { error } = await supabase.from("todo").insert([{ title: input }]);
+    if (error) throw new Error(error.message);
+    setInput("");
+    todoCacheRefetch();
+  };
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -34,20 +57,6 @@ function App() {
 
   if (!session) {
     return <Auth supabaseClient={supabase} appearance={{ theme: ThemeSupa }} />;
-  }
-
-  const createTodo = async () => {
-    const { error } = await supabase.from("todo").insert([{ title: input }]);
-    if (error) throw new Error(error.message);
-    setInput("");
-  };
-
-  function generate(element: React.ReactElement) {
-    return [0, 1, 2].map((value) =>
-      React.cloneElement(element, {
-        key: value,
-      })
-    );
   }
 
   return (
@@ -75,19 +84,28 @@ function App() {
             追加
           </Button>
         </Stack>
-        <List>
-          {generate(
-            <ListItem
-              secondaryAction={
-                <IconButton edge="end" aria-label="delete">
-                  <DeleteIcon />
-                </IconButton>
-              }
-            >
-              <ListItemText primary="dummy item" />
-            </ListItem>
-          )}
-        </List>
+        {todoCacheStatus === "error" ? (
+          <Typography color="red">エラー</Typography>
+        ) : todoCacheStatus === "pending" ? (
+          <Stack justifyContent="center">
+            <CircularProgress />
+          </Stack>
+        ) : (
+          <List sx={{ overflow: "auto", maxHeight: "300px" }}>
+            {todoCache.map((x) => (
+              <ListItem
+                key={x.id}
+                secondaryAction={
+                  <IconButton edge="end" aria-label="delete">
+                    <DeleteIcon />
+                  </IconButton>
+                }
+              >
+                <ListItemText primary={x.title} />
+              </ListItem>
+            ))}
+          </List>
+        )}
       </Stack>
     </Stack>
   );
