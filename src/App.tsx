@@ -4,8 +4,9 @@ import { Auth } from "@supabase/auth-ui-react";
 import { ThemeSupa } from "@supabase/auth-ui-shared";
 import List from "@mui/material/List";
 import ListItem from "@mui/material/ListItem";
-import { Box, Button, IconButton, ListItemText, Stack } from "@mui/material";
+import { Button, IconButton, ListItemText, Stack, TextField } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
+import SendIcon from "@mui/icons-material/Send";
 
 const supabase = createClient(import.meta.env.VITE_SUPABASE_PROJECT_URL, import.meta.env.VITE_SUPABASE_API_KEY);
 
@@ -47,20 +48,27 @@ function App() {
       >
         ログアウト
       </Button>
-      <p>メインコンテンツ</p>
-      <List>
-        {generate(
-          <ListItem
-            secondaryAction={
-              <IconButton edge="end" aria-label="delete">
-                <DeleteIcon />
-              </IconButton>
-            }
-          >
-            <ListItemText primary="dummy item" />
-          </ListItem>
-        )}
-      </List>
+      <Stack spacing={4}>
+        <Stack direction="row" spacing={2}>
+          <TextField id="outlined-basic" label="新規TODOタイトル" variant="outlined" />
+          <Button variant="outlined" endIcon={<SendIcon />}>
+            追加
+          </Button>
+        </Stack>
+        <List>
+          {generate(
+            <ListItem
+              secondaryAction={
+                <IconButton edge="end" aria-label="delete">
+                  <DeleteIcon />
+                </IconButton>
+              }
+            >
+              <ListItemText primary="dummy item" />
+            </ListItem>
+          )}
+        </List>
+      </Stack>
     </Stack>
   );
 }
