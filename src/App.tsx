@@ -7,11 +7,16 @@ import ListItem from "@mui/material/ListItem";
 import { Button, IconButton, ListItemText, Stack, TextField, Tooltip, Typography } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 import SendIcon from "@mui/icons-material/Send";
+import type { Database } from "../types/supabase";
 
-const supabase = createClient(import.meta.env.VITE_SUPABASE_PROJECT_URL, import.meta.env.VITE_SUPABASE_API_KEY);
+const supabase = createClient<Database>(
+  import.meta.env.VITE_SUPABASE_PROJECT_URL,
+  import.meta.env.VITE_SUPABASE_API_KEY
+);
 
 function App() {
   const [session, setSession] = useState<Session | null>(null);
+  const [input, setInput] = useState("");
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -30,6 +35,12 @@ function App() {
   if (!session) {
     return <Auth supabaseClient={supabase} appearance={{ theme: ThemeSupa }} />;
   }
+
+  const createTodo = async () => {
+    const { error } = await supabase.from("todo").insert([{ title: input }]);
+    if (error) throw new Error(error.message);
+    setInput("");
+  };
 
   function generate(element: React.ReactElement) {
     return [0, 1, 2].map((value) =>
@@ -53,8 +64,14 @@ function App() {
       </Stack>
       <Stack spacing={4}>
         <Stack direction="row" spacing={2}>
-          <TextField id="outlined-basic" label="新規TODOタイトル" variant="outlined" />
-          <Button variant="outlined" endIcon={<SendIcon />}>
+          <TextField
+            id="outlined-basic"
+            label="新規TODOタイトル"
+            variant="outlined"
+            onChange={(e) => setInput(e.target.value)}
+            value={input}
+          />
+          <Button variant="outlined" endIcon={<SendIcon />} onClick={createTodo}>
             追加
           </Button>
         </Stack>
