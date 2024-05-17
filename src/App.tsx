@@ -4,7 +4,16 @@ import { Auth } from "@supabase/auth-ui-react";
 import { ThemeSupa } from "@supabase/auth-ui-shared";
 import List from "@mui/material/List";
 import ListItem from "@mui/material/ListItem";
-import { Button, CircularProgress, IconButton, ListItemText, Stack, TextField, Typography } from "@mui/material";
+import {
+  Button,
+  CircularProgress,
+  IconButton,
+  ListItemText,
+  Stack,
+  TextField,
+  Tooltip,
+  Typography,
+} from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 import SendIcon from "@mui/icons-material/Send";
 import type { Database, Tables } from "../types/supabase";
@@ -112,7 +121,11 @@ function App() {
                   </IconButton>
                 }
               >
-                <ListItemText primary={x.title} />
+                <ListItemText>
+                  <Tooltip title={x.title}>
+                    <Typography noWrap>{x.title}</Typography>
+                  </Tooltip>
+                </ListItemText>
               </ListItem>
             ))}
           </List>
