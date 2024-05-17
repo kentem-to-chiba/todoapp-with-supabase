@@ -4,7 +4,7 @@ import { Auth } from "@supabase/auth-ui-react";
 import { ThemeSupa } from "@supabase/auth-ui-shared";
 import List from "@mui/material/List";
 import ListItem from "@mui/material/ListItem";
-import { Button, IconButton, ListItemText, Stack, TextField } from "@mui/material";
+import { Button, IconButton, ListItemText, Stack, TextField, Tooltip, Typography } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 import SendIcon from "@mui/icons-material/Send";
 
@@ -41,13 +41,16 @@ function App() {
 
   return (
     <Stack gap={4} maxWidth={360}>
-      <Button
-        onClick={() => {
-          supabase.auth.signOut();
-        }}
-      >
-        ログアウト
-      </Button>
+      <Stack direction="row" alignItems="center" justifyContent="space-between">
+        <Typography noWrap>{session.user.email}</Typography>
+        <Button
+          onClick={() => {
+            supabase.auth.signOut();
+          }}
+        >
+          ログアウト
+        </Button>
+      </Stack>
       <Stack spacing={4}>
         <Stack direction="row" spacing={2}>
           <TextField id="outlined-basic" label="新規TODOタイトル" variant="outlined" />
